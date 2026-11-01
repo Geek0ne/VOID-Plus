@@ -135,9 +135,9 @@ jobs:
       - name: Build instructions are documented
         run: |
           set -e
-          if grep -qi "npm run build" SECURITY.md README.md; then
+          if grep -qi "npm run build" README.md; then
             echo "build instructions are documented"
           else
-            echo "::error::neither README.md nor SECURITY.md explains 'npm run build'"
+            echo "::error::README.md does not explain 'npm run build'"
             exit 1
           fi

@@ -11,3 +11,6 @@ yarn-error.log*
 
 .DS_Store
 *.swp
+
+# 个人编辑器配置，不纳入版本管理
+.vscode/

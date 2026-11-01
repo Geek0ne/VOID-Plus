@@ -85,7 +85,7 @@
 
 <details><summary>下载安装后样式不对？</summary><br>
 
-仓库中的是未压缩的源代码，包含大量实际使用中不需要的文件，并且可能无法直接使用。请一定通过[发布版](https://github.com/Geek0ne/VOID-Plus/releases)下载主题，下载 VOID-Plus-x.y.z.zip 压缩包，而不是 Source code。
+请一定通过[发布版](https://github.com/Geek0ne/VOID-Plus/releases)下载主题，下载 VOID-Plus-x.y.z.zip 压缩包，而不是 Source code。仓库里虽然也带了编译产物，但同时混有构建工具链等开发文件，直接使用容易踩到路径与缓存问题。
 
 </details>
 
@@ -173,6 +173,71 @@
 
 > 3.5.6 起主题目录更名为 `VOID-Plus`、配套插件目录更名为 `VOIDPlus`。从旧版本升级请先在后台停用并删除旧主题与旧插件，再上传新目录，详见[发布页](https://github.com/Geek0ne/VOID-Plus/releases)中的「安装 / 升级步骤」。
 
+## 部署与安全
+
+> 本仓库在原版基础上补齐了安全加固、SEO 与构建链维护，原作者为 [熊猫小A / AlanDecode](https://github.com/AlanDecode/Typecho-Theme-VOID)，主题设计归原作者所有。
+
+### 安全加固要点
+
+| 问题 | 修复 |
+|---|---|
+| 自定义字段（主图、摘要等）直接拼进 HTML 属性与 `meta` | 新增 `Utils::esc()`，统一 `ENT_QUOTES` + UTF-8 转义 |
+| 封面图 `src` / `data-src` 裸输出 | 统一经 `Utils::esc()` |
+| JSON-LD 的 `description` / `excerpt` 裸输出 | 已转义 |
+| 后台 `brandFont` 的 `src` / `style` / `weight` 直接进 `<style>` | 限定 `http(s)://` 或 `/` 开头；`style`、`weight` 走白名单 |
+| `VOIDPlusConfig` 中数值项未强制类型 | 全部 `(int)` 强转 |
+| Twitter 账号裸输出，留空时输出空 `@` | `trim` 去 `@` + 转义，留空则不输出该标签 |
+
+主题同时提供 `.htaccess`（安全响应头、目录保护、隐藏文件拦截、静态缓存、压缩）。**该文件只对 Apache 生效，nginx 用户请参考下方配置。**
+
+### Apache
+
+主题根目录的 `.htaccess` 需被 Apache 读到。若 `AllowOverride None`，请在站点配置中手动添加：
+
+```apache
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.bootcdn.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; frame-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'"
+</IfModule>
+```
+
+### Nginx
+
+`.htaccess` 对 nginx 无效，请在 `server` 块中加入等效规则：
+
+```nginx
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; frame-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'" always;
+location ~ ^/(admin|action)/ { deny all; }
+location ~ /\.(?!well-known) { deny all; }
+```
+
+> CSP 默认已放开常见 CDN。若站点用了别的统计 / 评论服务，请逐项追加来源，**不要直接删整条策略**。
+
+### robots.txt
+
+把 `robots.txt.example` 复制到 **Typecho 根目录**（与 `index.php` 同级），并确认 `Sitemap:` 指向 `/usr/themes/VOID-Plus/sitemap.php`。
+
+### 兼容性
+
+| 项 | 状态 |
+|---|---|
+| Typecho 1.2 / 1.3 | ✅ 实测 1.3.0 通过；1.2 沿用原主题适配 |
+| PHP 7.0 – 8.4 | ✅ 实测 8.4.27 全部 PHP 文件 `php -l` 通过，无 `each` / `create_function` / `mysql_*` 等已移除函数 |
+| Typecho 2.x | ❌ 未适配。主题与插件仍使用 `Typecho_Db` / `Typecho_Widget_Helper_Form_Element_*` 等 1.2 兼容别名，2.x 移除后需整体迁移 |
+
+### 已知未处理
+
+| 项 | 原因 |
+|---|---|
+| 第三方 CDN 资源未加 SRI | `fonts.googleapis.com` 等动态返回内容，加 SRI 需固定哈希，维护成本高 |
+| 未做 `hreflang` | 主题无法感知站点是否启用多语言，留给站点按需在 `主题设置 → head` 里自行添加 |
+| 未提供 `noscript` 图片回退 | 懒加载脚本已处理，纯 `noscript` 回退会重复加载图片 |
+
 ## 开发与自定义
 
 **首先注意：我不保证提供任何自定义修改相关的指导与帮助。You are on your own.**
@@ -212,6 +277,8 @@ gulp build
 
 构建你的主题，生成的主题位于 `./build` 目录下。如果你对自己的更改很满意，**欢迎提出 Pull Request**。
 
+> **编译产物已纳入版本管理**：`assets/VOID-Plus.css`、`assets/bundle.css`、`assets/VOID-Plus.js`、`assets/bundle-header.js` 等构建产物随仓库一起提交，克隆后即可直接部署，无需先执行 `npm run build`。但**改动 `assets/VOID-Plus.scss` 后必须重新编译并一并提交产物**，否则新样式不会生效（CI 目前不会校验两者是否同步）。
+
 </details>
 
 ## 更新日志
@@ -220,6 +287,11 @@ gulp build
 
 新增必要模块、样式规范优化与 Bug 修复：
 
+* 修复：文章主图链接未转义，作者填入含引号的链接会注入 HTML 属性
+* 修复：高级设置 JSON 填写有误时触发 PHP 警告，且设置被静默忽略
+* 修复：配套插件图片解析接口的参数未做整型转换
+* 修复：插件中的全局错误屏蔽改为只影响单次调用
+* 调整：修正前端检查脚本路径，特性清单补充新增功能
 * 新增：页眉右上角新增昼夜模式切换按钮，可在后台模式之外手动切换深浅色
 * 新增：后台新增备案号设置，页脚显示带国徽图标的备案号并链接至工信部查询
 * 新增：页脚与文章末尾新增版权说明，含 CC 官方图标与许可协议链接，文章内附本文链接与引用提示
