@@ -28,7 +28,7 @@ body:not(.macStyleCodeBlock).theme-dark .yue pre .code-toolbar{background:rgba(3
 .theme-dark #toggle-night-mode .voidicon-moon{display:none}
 #toggle-night-mode.switching i{transform:rotate(180deg)}
 .beian{display:flex;align-items:center;justify-content:flex-end;gap:.35em}
-.beian .beian-icon{width:1em;height:1em;flex:none;display:block}
+.beian .beian-icon{height:1.35em;width:auto;flex:none;display:block}
 @media screen and (max-width:767px){.beian{justify-content:flex-start}}
 .copyright p{margin:.2em 0}
 .copyright a{display:inline-flex;align-items:center}

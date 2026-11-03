@@ -23,7 +23,7 @@ $setting = $GLOBALS['VOIDPlusSetting'];
                     <?php endif; ?>
                     <?php if($setting['beian'] == '1' && !empty($setting['beianText'])): ?>
                     <p class="beian">
-                        <svg class="beian-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="11" fill="#de2910"></circle><path d="M12 5 L13.76 9.57 L18.66 9.84 L14.85 12.93 L16.11 17.66 L12 15 L7.89 17.66 L9.15 12.93 L5.34 9.84 L10.24 9.57 Z" fill="#ffde00"></path></svg>
+                        <img class="beian-icon" src="<?php Utils::indexTheme('/assets/images/Guohui.png'); ?>" alt="中华人民共和国国徽" width="20" height="22">
                         <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer nofollow"><?php echo Utils::esc($setting['beianText']); ?></a>
                     </p>
                     <?php endif; ?>
