@@ -62,7 +62,47 @@
 6. 后台启用插件
 
 * 可选：将主题 `assets` 文件夹下的 `VOID-CacheRule.js` 复制一份到站点根目录，并在主题设置中启用 Service Worker 缓存。
-* 可选：主题文件夹下 advanceSetting.sample.json 中有一些高级设置，可以看看。
+* 可选：主题文件夹下 advanceSetting.sample.json 中有一些高级设置，各项含义见[超高级设置](#超高级设置)。
+
+## 超高级设置
+
+后台「主题设置 → 超高级设置」是一个 JSON 输入框，用来填写主题的进阶选项。
+仓库根目录的 [`advanceSetting.sample.json`](advanceSetting.sample.json) 是完整的示例文件，
+**把其中需要的条目复制粘贴进去即可**，不必全部填写。
+
+> ⚠️ 该输入框只接受**合法 JSON**。从示例文件复制时**必须删掉所有以 `//` 开头的注释行**，
+> 否则解析失败，主题会保留默认设置而不生效（此时页脚计时等会表现为"设置没反应"）。
+
+| 选项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `name` | string | 空 | 左上角显示的站点名，留空则用后台的站点名称 |
+| `brandFont` | object | 见下 | 站点标题的自定义字体 |
+| `brandFont.src` | string | 空 | 字体文件链接，只允许 http(s) 或站内相对路径 |
+| `brandFont.style` | string | `normal` | 字体样式，如 `normal`、`italic` |
+| `brandFont.weight` | string | `normal` | 字重，如 `normal`、`bold`、`300`、`400` |
+| `desktopBannerHeight` | number | 空 | 桌面端头图高度，数值为占屏幕高度的百分比 |
+| `mobileBannerHeight` | number | 空 | 移动端头图高度，同上 |
+| `headerMode` | number | `1` | 导航栏模式：`0` 随滚动显隐、`1` 固定、`2` 不固定 |
+| `headerModeMobile` | number | 未设置 | 移动端导航栏模式，取值同上；不填则跟随 `headerMode` |
+| `defaultFontSize` | number | `3` | 文章字号：`1`=14px `2`=16px `3`=18px `4`=20px `5`=22px；访客在前台自行调整后以访客选择为准 |
+| `useFiraCodeFont` | bool | `false` | 代码块使用 Fira Code 字体（有连字效果，由 Google Fonts 提供，会略增加载时间） |
+| `followSystemColorScheme` | bool | `false` | 跟随操作系统的深浅色，仅 macOS 10.14.4 及以上版本的 Safari 生效 |
+| `darkModeTime` | object | 见下 | 夜间模式的时间段 |
+| `darkModeTime.start` | number | `22.0` | 夜间开始时间，`22.5` 表示 22 点 30 分 |
+| `darkModeTime.end` | number | `7.0` | 夜间结束时间，`7.0` 表示次日 7 点 00 分 |
+| `largePhotoSet` | bool | `true` | 启用大图集排版 |
+| `macStyleCodeBlock` | bool | `true` | Mac 风格代码块 |
+| `lineNumbers` | bool | `true` | 代码块显示行号 |
+| `parseFigcaption` | bool | `true` | 在图片下方显示图题 |
+| `bluredLazyload` | bool | `false` | 模糊渐变懒加载，需配合 `CDNType` 使用 |
+| `browserLevelLoadingLazy` | bool | `false` | 使用浏览器原生 `loading="lazy"` 懒加载，对 SEO 更友好；**开启后模糊懒加载失效** |
+| `CDNType` | object | 空 | CDN 域名与类型的映射，如 `{"cdn.example.com":"UPYUN"}`，类型可选 `UPYUN`、`QINIU`；模糊懒加载时又拍云需把处理间隔符设为 `!` |
+| `twitterId` | string | 空 | Twitter 社交 ID，用于生成分享链接 |
+| `weiboId` | string | 空 | 微博社交 ID，用于生成分享链接 |
+| `commentFoldThreshold` | array | `[5, 1.5]` | 评论折叠阈值：`[5, 1.5]` 表示踩数大于 5 且达到点赞数的 1.5 倍时折叠该评论 |
+| `commentNotification` | string | 空 | 评论区的提示文字 |
+| `link` | array | 空 | 自定义社交链接，字段为 `name`、`icon`、`href`、`target`；`icon` 取主题图标字体中的名称（如 `github`、`weibo`、`twitter`、`qq`） |
+| `nav` | array | 空 | 导航栏下拉列表，字段为 `name` 与 `items`（每项含 `link`、`title`、`target`） |
 
 ## **常见问题（请务必仔细阅读）**
 
@@ -349,16 +389,16 @@ gulp build
 * 工程：前端构建产物纳入版本库，新增 CI 检查
 * 调整：后台更新检查改用本仓库 Releases，版本号统一为 3.5.3
 
-**🍰 2020-07-04 Version 3.5.1**
+<details><summary>展开 2020 年及以前的更新日志</summary><br>
 
-*该版本依赖 VOID-Plus 插件 1.20 及以上版本，请先禁用原插件，上传新插件后重新启用插件*
+**🍰 2020-07-04 Version 3.5.1**
 
 * 修复：iframe 尺寸错误（#42）
 * 修复：归档页面显示未发布的文章（#45）
 
-**🍰 2020-05-01 Version 3.5.0**
+注意，3.5.1 版本主题依赖 1.20 及以上版本插件，请先禁用原插件，上传新版插件后重新启用。
 
-*该版本依赖 VOID-Plus 插件 1.20 及以上版本，请先禁用原插件，上传新插件后重新启用插件*
+**🍰 2020-05-01 Version 3.5.0**
 
 * 新增：[高级设置]图片懒加载渐变（需要 CDN 支持）
 * 新增：JSON-LD 结构化数据支持
@@ -376,7 +416,11 @@ gulp build
 * 移除：Microdata
 * 其它细节优化
 
+注意，3.5.0 版本主题依赖 1.20 及以上版本插件，请先禁用原插件，上传新版插件后重新启用。
+
 从 2.2 版本起，主题部分功能需要配套插件支持，例如文章点赞、浏览量统计、字数统计等。**请先卸载**原来的 Likes、TePostViews 插件，否则数据会出现错误！TePostViews 插件卸载前请设置为**卸载后保留数据**，以防丢失浏览数据。
+
+</details>
 
 更多：[change-log.md](https://github.com/Geek0ne/VOID-Plus/blob/master/change-log.md)
 
