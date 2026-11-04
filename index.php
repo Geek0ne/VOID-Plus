@@ -1,6 +1,6 @@
 <?php
 /**
- * A modern Typecho theme with dark mode, code highlighting, MathJax and SEO.
+ * A modern, enhanced and optimized version of the VOID theme for Typecho.
  *
  * @package     Typecho-Theme-VOID-Plus
  * @author      Geek0ne
