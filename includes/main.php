@@ -40,11 +40,12 @@ $setting = $GLOBALS['VOIDPlusSetting'];
                         echo '</section>';
                     } ?>
 
-                    <?php if(!empty($setting['copyright'])): ?>
+                    <?php $postLicense = Utils::getLicenseHtml($setting['license']); ?>
+                    <?php if(!empty($postLicense)): ?>
                     <?php $permalink = $this->permalink; ?>
                     <blockquote class="copyright-notice">
                         <p>本文链接：<a href="<?php echo Utils::esc($permalink); ?>"><?php echo Utils::esc($permalink); ?></a></p>
-                        <?php echo $setting['copyright']; ?>
+                        <?php echo $postLicense; ?>
                         <p>转载或引用请标注来源。</p>
                     </blockquote>
                     <?php endif; ?>

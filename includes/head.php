@@ -76,10 +76,11 @@ if (isset($_POST['voidplus_action'])) {
         $description = Utils::esc(Helper::options()->description);
     }
 
-    // 社交卡片图片：文章未设 banner 时回退到站点图标
+    // 社交卡片图片：文章未设 banner 时回退到站点默认头图，
+    // 默认头图也为空则不输出 og:image（指向不存在的图片比不输出更糟）
     $socialImage = $banner;
-    if ($socialImage === '' && isset($this->options->themeUrl)) {
-        $socialImage = Utils::esc($this->options->themeUrl('/assets/favicon.ico', true));
+    if ($socialImage === '' && !empty($setting['defaultBanner'])) {
+        $socialImage = Utils::esc($setting['defaultBanner']);
     }
 
     // Twitter 账号：后台可留空，留空则不输出相关标签

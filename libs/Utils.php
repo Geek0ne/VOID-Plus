@@ -283,21 +283,67 @@ class Utils
     }
 
     /**
-     * 版权说明默认值
+     * 可选的版权许可协议
      *
-     * 单行声明，含 Creative Commons 官方图标与许可协议链接。
-     * 支持 HTML，便于自行添加链接出处与图标。
+     * 键为设置项取值，值为协议名称与官方链接。
+     * 新增协议只需在此处追加一条，后台下拉框会自动同步。
      *
-     * @return string
+     * @return array
      */
-    public static function getCopyrightDefault()
+    public static function getLicenseOptions()
     {
+        return array(
+            'by' => array(
+                'name' => '知识共享署名 4.0 国际',
+                'url'  => 'https://creativecommons.org/licenses/by/4.0/'
+            ),
+            'by-nc' => array(
+                'name' => '知识共享署名-非商业性使用 4.0 国际',
+                'url'  => 'https://creativecommons.org/licenses/by-nc/4.0/'
+            ),
+            'by-sa' => array(
+                'name' => '知识共享署名-相同方式共享 4.0 国际',
+                'url'  => 'https://creativecommons.org/licenses/by-sa/4.0/'
+            )
+        );
+    }
+
+    /**
+     * 生成版权说明 HTML
+     *
+     * 固定句式为「本网站内容均采用 XXX许可协议 进行许可。」，
+     * 中间的协议名称与链接取自 getLicenseOptions()。
+     *
+     * @param string $key 许可协议标识
+     * @return string 为空表示不显示版权说明
+     */
+    public static function getLicenseHtml($key)
+    {
+        $options = self::getLicenseOptions();
+        if (!isset($options[$key])) {
+            return '';
+        }
+
+        $info = $options[$key];
         return '<p>本网站内容均采用 '
-            . '<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer nofollow">'
+            . '<a href="' . $info['url'] . '" target="_blank" rel="noopener noreferrer nofollow">'
             . '<svg class="cc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
             . '<circle cx="12" cy="12" r="10.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle>'
             . '<text x="12" y="16.1" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="10.5" font-weight="700" fill="currentColor">cc</text>'
-            . '</svg>知识共享署名 4.0 国际许可协议</a>进行许可。</p>';
+            . '</svg>' . $info['name'] . '许可协议</a> 进行许可。</p>';
+    }
+
+    /**
+     * 规整备案号文本
+     *
+     * 去掉半角空格与全角空格，避免「粤 ICP 备 XXXXXXXX 号」这类带空格的写法。
+     *
+     * @param string $text 原始备案号
+     * @return string
+     */
+    public static function formatBeian($text)
+    {
+        return preg_replace('/[\s\x{3000}]+/u', '', (string) $text);
     }
 
     /**
@@ -327,7 +373,7 @@ class Utils
             'reward' => '',
             'beian' => '0',
             'beianText' => '',
-            'copyright' => self::getCopyrightDefault()
+            'license' => 'by'
         );
 
         $keys = array_keys($themeSetting);
@@ -337,9 +383,13 @@ class Utils
             }
         }
 
-        // 版权说明允许留空(用户可能主动关闭),不能沿用上面的 !empty 判断
-        if (isset($options->copyright)) {
-            $themeSetting['copyright'] = $options->copyright;
+        // 许可协议允许留空(用户可能主动关闭),不能沿用上面的 !empty 判断
+        if (isset($options->license)) {
+            $themeSetting['license'] = $options->license;
+        } elseif (isset($options->copyright)) {
+            // 兼容 3.5.7 之前把版权说明存为 HTML 的旧设置:
+            // 旧值非空按「知识共享署名 4.0 国际」处理,旧值为空视为用户已主动关闭
+            $themeSetting['license'] = empty($options->copyright) ? '' : 'by';
         }
 
         // 一些类型变换

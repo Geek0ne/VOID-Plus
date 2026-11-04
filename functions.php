@@ -82,9 +82,13 @@ function themeConfig($form)
     $beianText = new Typecho_Widget_Helper_Form_Element_Text('beianText', null, '', '备案号', '请填写备案号，例如：粤ICP备XXXXXXXX号。');
     $form->addInput($beianText);
 
-    // 版权说明
-    $copyright = new Typecho_Widget_Helper_Form_Element_Textarea('copyright', null, Utils::getCopyrightDefault(), '版权说明', '显示在网站底部与文章末尾，支持 HTML（可自行添加链接与图标）。留空则不显示。');
-    $form->addInput($copyright);
+    // 版权许可协议
+    $licenseOptions = array('' => '不显示版权说明');
+    foreach (Utils::getLicenseOptions() as $licenseKey => $licenseInfo) {
+        $licenseOptions[$licenseKey] = $licenseInfo['name'];
+    }
+    $license = new Typecho_Widget_Helper_Form_Element_Select('license', $licenseOptions, 'by', '版权许可协议', '选择本站内容采用的许可协议，显示在网站底部与文章末尾。留空则不显示版权说明。');
+    $form->addInput($license);
     $serifincontent = new Typecho_Widget_Helper_Form_Element_Radio('serifincontent', array('0' => '不启用', '1' => '启用'), '0', '文章内容使用衬线体', '是否对文章内容启用衬线体（思源宋体）。此服务由 Google Fonts 提供，可能会有加载较慢的情况。');
     $form->addInput($serifincontent);
     $lazyload = new Typecho_Widget_Helper_Form_Element_Radio('lazyload', array('1' => '启用', '0' => '不启用'), '1', '图片懒加载', '是否启用图片懒加载。');
