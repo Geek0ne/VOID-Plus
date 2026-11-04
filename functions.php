@@ -14,6 +14,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) {
 require_once('libs/Utils.php');
 require_once('libs/Contents.php');
 require_once('libs/Comments.php');
+require_once('libs/FormElement.php');
 
 Typecho_Plugin::factory('admin/write-post.php')->bottom = array('Utils', 'addButton');
 Typecho_Plugin::factory('admin/write-page.php')->bottom = array('Utils', 'addButton');
@@ -81,6 +82,11 @@ function themeConfig($form)
     $form->addInput($beian);
     $beianText = new Typecho_Widget_Helper_Form_Element_Text('beianText', null, '', '备案号', '请填写备案号，例如：粤ICP备XXXXXXXX号。请不要在中文与英文、数字之间加空格，主题输出时会自动去掉。');
     $form->addInput($beianText);
+
+    // 建站时间
+    $siteBuildTime = new VOIDPlus_Form_Element_DateText('siteBuildTime', null, '', '建站时间', '填写后页脚的版权年份与「感谢陪伴」计时都以此日期为准。留空则自动取最早一篇文章的写作时间。');
+    $siteBuildTime->setPlaceholder('例如：2019-5-3，也支持 2019/5/3、2019.5.3');
+    $form->addInput($siteBuildTime);
 
     // 版权许可协议
     $licenseOptions = array('' => '不显示版权说明');

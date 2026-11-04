@@ -13,7 +13,7 @@ $setting = $GLOBALS['VOIDPlusSetting'];
         <footer>
             <div class="container wide">
                 <section>
-                    <p>© <?php echo date('Y '); ?> <span class="brand"><?php echo $this->options->title; ?></span></p>
+                    <p>© <?php echo Utils::getCopyrightYears(); ?> <span class="brand"><?php echo $this->options->title; ?></span></p>
                     <p>感谢陪伴：<span id="uptime"></span></p>
                 </section>
                 <section>

@@ -211,12 +211,110 @@ class Utils
     }
 
     /**
-     * 输出建站时间（最早一篇文章的写作时间）
-     * 
-     * @return array
+     * 解析建站时间
+     *
+     * 支持 2019-5-3、2019/5/3、2019.5.3、2019年5月3日、20190503 等写法，
+     * 只填年份时按 1 月 1 日处理。日期不合法返回 0。
+     *
+     * @param string $text 原始文本
+     * @return int 时间戳，0 表示无效
+     */
+    public static function parseBuildTime($text)
+    {
+        $text = trim((string) $text);
+        if ($text === '') {
+            return 0;
+        }
+
+        // 中文年月日与常见分隔符统一
+        $text = str_replace(array('年', '月', '日'), array('-', '-', ''), $text);
+        $text = preg_replace('/[^0-9\-.\/]/u', '', $text);
+        if ($text === null || $text === '') {
+            return 0;
+        }
+
+        // 紧凑写法 20190503
+        if (preg_match('/^(\d{4})(\d{2})(\d{2})$/', $text, $m)) {
+            $parts = array($m[1], $m[2], $m[3]);
+        } else {
+            $text = str_replace(array('/', '.'), '-', $text);
+            $parts = explode('-', $text);
+        }
+
+        $parts = array_values(array_filter($parts, 'strlen'));
+        if (count($parts) === 1 && preg_match('/^\d{4}$/', $parts[0])) {
+            $parts = array($parts[0], '1', '1');
+        }
+        if (count($parts) < 3) {
+            return 0;
+        }
+
+        $year  = (int) $parts[0];
+        $month = (int) $parts[1];
+        $day   = (int) $parts[2];
+
+        if ($year < 1970 || $year > 3000 || !checkdate($month, $day, $year)) {
+            return 0;
+        }
+
+        return mktime(0, 0, 0, $month, $day, $year);
+    }
+
+    /**
+     * 后台指定的建站时间
+     *
+     * @return int 时间戳，0 表示未指定或格式无效
+     */
+    public static function getCustomBuildTime()
+    {
+        // 主题设置在 functions.php 中载入全局,这里兜底以防被提前调用
+        $setting = isset($GLOBALS['VOIDPlusSetting'])
+            ? $GLOBALS['VOIDPlusSetting']
+            : self::getVOIDPlusSettings();
+        if (empty($setting['siteBuildTime'])) {
+            return 0;
+        }
+
+        return self::parseBuildTime($setting['siteBuildTime']);
+    }
+
+    /**
+     * 页脚版权年份
+     *
+     * 指定了建站时间则显示「起始年-当前年」，否则只显示当前年。
+     *
+     * @return string
+     */
+    public static function getCopyrightYears()
+    {
+        $now = (int) date('Y');
+        $start = self::getCustomBuildTime();
+
+        if ($start > 0) {
+            $year = (int) date('Y', $start);
+            if ($year > 0 && $year < $now) {
+                return $year . '-' . $now;
+            }
+        }
+
+        return (string) $now;
+    }
+
+    /**
+     * 输出建站时间
+     *
+     * 后台指定了建站时间则以其为准，否则回退到最早一篇文章的写作时间。
+     *
+     * @return void
      */
     public static function getBuildTime()
     {
+        $custom = self::getCustomBuildTime();
+        if ($custom > 0) {
+            echo date('Y-m-d\TH:i', $custom);
+            return;
+        }
+
         $db = Typecho_Db::get();
         $content = $db->fetchRow($db->select()->from('table.contents')
             ->where('table.contents.status = ?', 'publish')
@@ -378,7 +476,8 @@ class Utils
             'reward' => '',
             'beian' => '0',
             'beianText' => '',
-            'license' => 'by'
+            'license' => 'by',
+            'siteBuildTime' => ''
         );
 
         $keys = array_keys($themeSetting);
