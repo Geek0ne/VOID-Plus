@@ -902,11 +902,32 @@ body:not(.macStyleCodeBlock).theme-dark .yue pre .code-toolbar {
     }
 }
 
+/* 版权说明独占一整行居中显示：
+   协议名较长时挤在右栏会折行参差，移出后整行可用宽度充足，桌面端一行放得下。 */
 .copyright {
+    flex: 0 0 auto;
+    width: 100%;
+    margin: 0.3rem 0.5rem 0;
+    /* 移动端协议名较长，缩小一号保证整段不溢出 */
+    @media screen and (max-width: 767px) {
+        font-size: 0.88em;
+    }
+    text-align: center;
+    color: #ddd;
+    font-weight: 300;
+    .theme-dark & {
+        color: $td-textColor;
+        * {
+            color: $td-textColor;
+        }
+    }
     p {
         margin: 0.2em 0;
+        text-align: center;
     }
     a {
+        /* 协议名不断行，防止出现半截协议名 */
+        white-space: nowrap;
         .voidicon-link-ext {
             font-size: 0.9em;
             margin-left: 0.2em;
@@ -915,7 +936,7 @@ body:not(.macStyleCodeBlock).theme-dark .yue pre .code-toolbar {
 }
 
 /* 页脚对所有后代统一设了 color，需提高特异性才能让版权链接显示为蓝色 */
-footer .container section .copyright a {
+footer .container .copyright a {
     color: #7ea6ff;
     &:visited {
         color: #c58af9;

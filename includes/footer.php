@@ -18,10 +18,6 @@ $setting = $GLOBALS['VOIDPlusSetting'];
                 </section>
                 <section>
                     <p>Powered by <a href="http://typecho.org/">Typecho</a> • <a href="https://github.com/Geek0ne/VOID-Plus">Theme VOID-Plus</a></p>
-                    <?php $footerLicense = Utils::getLicenseHtml($setting['license']); ?>
-                    <?php if(!empty($footerLicense)): ?>
-                    <div class="copyright"><?php echo $footerLicense; ?></div>
-                    <?php endif; ?>
                     <?php if($setting['beian'] == '1' && !empty($setting['beianText'])): ?>
                     <p class="beian">
                         <img class="beian-icon" src="<?php Utils::indexTheme('/assets/images/Guohui.png'); ?>" alt="中华人民共和国国徽" width="20" height="22">
@@ -30,6 +26,10 @@ $setting = $GLOBALS['VOIDPlusSetting'];
                     <?php endif; ?>
                     <p><?php echo $setting['footer']; ?></p>
                 </section>
+                <?php $footerLicense = Utils::getLicenseHtml($setting['license']); ?>
+                <?php if(!empty($footerLicense)): ?>
+                <div class="copyright"><?php echo $footerLicense; ?></div>
+                <?php endif; ?>
             </div>
         </footer>
 

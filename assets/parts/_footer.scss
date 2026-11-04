@@ -5,6 +5,7 @@ footer{
     padding-bottom: 1.5rem;
     .container{
         display: flex;
+        flex-wrap: wrap;
         .sidebar-show & {
             width: $mainWidth;
         }

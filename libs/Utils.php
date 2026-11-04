@@ -336,14 +336,19 @@ class Utils
     /**
      * 规整备案号文本
      *
-     * 去掉半角空格与全角空格，避免「粤 ICP 备 XXXXXXXX 号」这类带空格的写法。
+     * 去掉全部 Unicode 空白与零宽字符（半角空格、不换行空格、全角空格、
+     * 窄空格、零宽空格、BOM 等），避免「粤 ICP 备 XXXXXXXX 号」这类带空格的写法。
      *
      * @param string $text 原始备案号
      * @return string
      */
     public static function formatBeian($text)
     {
-        return preg_replace('/[\s\x{3000}]+/u', '', (string) $text);
+        // \p{Z} 覆盖全部 Unicode 分隔符(Zs/Zl/Zp)，\s 覆盖 ASCII 控制空白，
+        // 再补零宽空格与 BOM——从网页或 Word 复制来的备案号常含这些字符
+        $text = (string) $text;
+        $text = preg_replace('/[\s\p{Z}\x{200B}\x{200C}\x{200D}\x{FEFF}]+/u', '', $text);
+        return $text === null ? '' : $text;
     }
 
     /**

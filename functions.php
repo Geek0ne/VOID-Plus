@@ -79,7 +79,7 @@ function themeConfig($form)
     // 备案号
     $beian = new Typecho_Widget_Helper_Form_Element_Radio('beian', array('0' => '不显示', '1' => '显示'), '0', '显示备案号', '在网站底部显示备案号信息。');
     $form->addInput($beian);
-    $beianText = new Typecho_Widget_Helper_Form_Element_Text('beianText', null, '', '备案号', '请填写备案号，例如：粤ICP备XXXXXXXX号。');
+    $beianText = new Typecho_Widget_Helper_Form_Element_Text('beianText', null, '', '备案号', '请填写备案号，例如：粤ICP备XXXXXXXX号。请不要在中文与英文、数字之间加空格，主题输出时会自动去掉。');
     $form->addInput($beianText);
 
     // 版权许可协议
