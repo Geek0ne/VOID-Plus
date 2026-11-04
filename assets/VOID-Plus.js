@@ -693,7 +693,7 @@ var AjaxComment = {
         }
     });
 
-    window.setInterval(function () {
+    function updateUptime() {
         var times = new Date().getTime() - Date.parse(VOIDPlusConfig.buildTime);
         times = Math.floor(times / 1000); // convert total milliseconds into total seconds
         var days = Math.floor(times / (60 * 60 * 24)); //separate days
@@ -704,7 +704,10 @@ var AjaxComment = {
         times %= 60; //subtract entire minutes
         var seconds = Math.floor(times / 1); // remainder is seconds
         $('#uptime').html(days + ' 天 ' + hours + ' 小时 ' + minutes + ' 分 ' + seconds + ' 秒 ');
-    }, 1000);
+    }
+    // 立即刷新一次，避免 setInterval 首拍要等满 1 秒才出现内容
+    updateUptime();
+    window.setInterval(updateUptime, 1000);
 })();
 /* ===== Prism 语言扩展（2026-10-30）：补齐 nginx / ini 高亮 ===== */
 !function(e){var n=/\$(?:\w[a-z\d]*(?:_[^\x00-\x1F\s"'\\()$]*)?|\{[^}\s"'\\]+\})/i;e.languages.nginx={comment:{pattern:/(^|[\s{};])#.*/,lookbehind:!0,greedy:!0},directive:{pattern:/(^|\s)\w(?:[^;{}"'\\\s]|\\.|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\s+(?:#.*(?!.)|(?![#\s])))*?(?=\s*[;{])/,lookbehind:!0,greedy:!0,inside:{string:{pattern:/((?:^|[^\\])(?:\\\\)*)(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/,lookbehind:!0,greedy:!0,inside:{escape:{pattern:/\\["'\\nrt]/,alias:"entity"},variable:n}},comment:{pattern:/(\s)#.*/,lookbehind:!0,greedy:!0},keyword:{pattern:/^\S+/,greedy:!0},boolean:{pattern:/(\s)(?:off|on)(?!\S)/,lookbehind:!0},number:{pattern:/(\s)\d+[a-z]*(?!\S)/i,lookbehind:!0},variable:n}},punctuation:/[{};]/}}(Prism);

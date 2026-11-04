@@ -14,7 +14,7 @@ $setting = $GLOBALS['VOIDPlusSetting'];
             <div class="container wide">
                 <section>
                     <p>© <?php echo Utils::getCopyrightYears(); ?> <span class="brand"><?php echo $this->options->title; ?></span></p>
-                    <p>感谢陪伴：<span id="uptime"></span></p>
+                    <p>感谢陪伴：<span id="uptime"><?php echo Utils::getUptimeText(); ?></span></p>
                 </section>
                 <section>
                     <p>Powered by <a href="http://typecho.org/">Typecho</a> • <a href="https://github.com/Geek0ne/VOID-Plus">Theme VOID-Plus</a></p>

@@ -11,6 +11,13 @@
 class Utils
 {
     /**
+     * 建站时间戳缓存
+     *
+     * @var int|null
+     */
+    private static $buildTimestamp = null;
+
+    /**
      * HTML 属性转义，用于把用户可控内容安全地放入 meta / HTML 属性。
      *
      * ENT_QUOTES 同时转义双引号与单引号，避免属性提前闭合；
@@ -301,18 +308,23 @@ class Utils
     }
 
     /**
-     * 输出建站时间
+     * 建站时间戳
      *
      * 后台指定了建站时间则以其为准，否则回退到最早一篇文章的写作时间。
+     * 同一次请求内只查询一次。
      *
-     * @return void
+     * @return int
      */
-    public static function getBuildTime()
+    public static function getBuildTimestamp()
     {
+        if (self::$buildTimestamp !== null) {
+            return self::$buildTimestamp;
+        }
+
         $custom = self::getCustomBuildTime();
         if ($custom > 0) {
-            echo date('Y-m-d\TH:i', $custom);
-            return;
+            self::$buildTimestamp = $custom;
+            return self::$buildTimestamp;
         }
 
         $db = Typecho_Db::get();
@@ -321,10 +333,52 @@ class Utils
             ->where('table.contents.password IS NULL')
             ->order('table.contents.created', Typecho_Db::SORT_ASC)
             ->limit(1));
-        if (count($content))
-            echo date('Y-m-d\TH:i', $content['created']);
-        else
-            echo date('Y-m-d\TH:i');
+
+        if (count($content)) {
+            self::$buildTimestamp = (int) $content['created'];
+        } else {
+            self::$buildTimestamp = time();
+        }
+
+        return self::$buildTimestamp;
+    }
+
+    /**
+     * 陪伴时长文本
+     *
+     * 服务端先算一次，页脚首屏即可显示，脚本再逐秒刷新。
+     *
+     * @return string
+     */
+    public static function getUptimeText()
+    {
+        $times = time() - self::getBuildTimestamp();
+        if ($times < 0) {
+            $times = 0;
+        }
+
+        $days = floor($times / (60 * 60 * 24));
+        $times %= 60 * 60 * 24;
+        $hours = floor($times / (60 * 60));
+        $times %= 60 * 60;
+        $minutes = floor($times / 60);
+        $times %= 60;
+        $seconds = floor($times);
+
+        return $days . ' 天 ' . $hours . ' 小时 ' . $minutes . ' 分 ' . $seconds . ' 秒 ';
+    }
+
+    /**
+     * 输出建站时间
+     *
+     * 带时区偏移，浏览器解析后与服务端算出的绝对时刻一致，
+     * 否则两端会差一个时区偏移。
+     *
+     * @return void
+     */
+    public static function getBuildTime()
+    {
+        echo date('Y-m-d\TH:iP', self::getBuildTimestamp());
     }
 
     /**
