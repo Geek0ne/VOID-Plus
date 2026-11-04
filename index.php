@@ -1,6 +1,6 @@
 <?php
 /**
- * A modern, enhanced and optimized version of the VOID theme for Typecho.
+ * A modern, enhanced and optimized version of the VOID theme.
  *
  * @package     Typecho-Theme-VOID-Plus
  * @author      Geek0ne
