@@ -1,9 +1,7 @@
 <?php
 /**
- * VOID：无类型
- * 
- * 作者：<a href="https://github.com/Geek0ne">Geek0ne</a>
- * 
+ * A modern Typecho theme with dark mode, code highlighting, MathJax and SEO.
+ *
  * @package     Typecho-Theme-VOID-Plus
  * @author      Geek0ne
  * @version     3.5.6
