@@ -172,7 +172,20 @@ class Utils
         echo '<link rel="stylesheet" href="';
         self::indexTheme('/assets/libs/owo/owo.min.css');
         echo '" />';
-       
+
+        self::adminStyle();
+    }
+
+    /**
+     * 后台样式
+     *
+     * 文章编辑页与页面编辑页共用。编辑器脚本与表情组件只在文章页需要，
+     * 由 addButton() 负责追加。
+     *
+     * @return void
+     */
+    public static function adminStyle()
+    {
         echo '<style>#custom-field textarea,#custom-field input{width:100%}
         .OwO span{background:none!important;width:unset!important;height:unset!important}
         .OwO .OwO-body .OwO-items{
@@ -184,7 +197,7 @@ class Utils
             max-width:-webkit-calc(20% - 10px);
             max-width:calc(20% - 10px)
         }
-        @media screen and (max-width:767px){	
+        @media screen and (max-width:767px){
             .comment-info-input{flex-direction:column;}
             .comment-info-input input{max-width:100%;margin-top:5px}
             #comments .comment-author .avatar{
@@ -199,7 +212,11 @@ class Utils
                 max-width:calc(25% - 10px)
             }
         }
-        .wmd-button-row{height:unset}</style>';
+        .wmd-button-row{height:unset}
+        /* 核心给文章区的说明文字设了 -0.5em 负边距，主题自定义字段的说明
+           不在 .typecho-option 内，兜底规则失效，会压到输入框上，这里恢复正常间距 */
+        .typecho-post-area #custom-field .fields .field .description{margin-top:.5em}
+        </style>';
     }
 
     /**
