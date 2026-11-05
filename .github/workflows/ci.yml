@@ -46,19 +46,6 @@ jobs:
             || { echo "::error::Utils::esc() is missing"; exit 1; }
           echo "Utils::esc() present"
 
-  security-headers:
-    name: Security headers shipped
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: .htaccess must define the core headers
-        run: |
-          set -e
-          for h in X-Frame-Options X-Content-Type-Options Referrer-Policy Content-Security-Policy; do
-            grep -q "$h" .htaccess || { echo "::error::$h missing from .htaccess"; exit 1; }
-          done
-          echo "all core headers present"
-
   seo:
     name: SEO tags present
     runs-on: ubuntu-latest

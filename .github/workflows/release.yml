@@ -22,7 +22,7 @@ jobs:
           mkdir -p dist/extract "dist/pkg/1.主题/VOID-Plus" "dist/pkg/2.配套插件/VOIDPlus"
           git archive --format=tar HEAD | tar -x -C dist/extract
           cd dist/extract
-          for item in $(ls -A | grep -vE '^(\.github|\.eslintrc\.json|\.gitattributes|\.gitignore|\.vscode|Makefile|RELEASE-NOTES.*\.md|gulpfile\.js|package-lock\.json|package\.json|plugin)$'); do
+          for item in $(ls -A | grep -vE '^(\.github|\.eslintrc\.json|\.gitattributes|\.gitignore|\.vscode|\.htaccess|Makefile|RELEASE-NOTES.*\.md|gulpfile\.js|package-lock\.json|package\.json|plugin)$'); do
             cp -r "$item" "../pkg/1.主题/VOID-Plus/"
           done
           cp -r plugin/VOIDPlus/. "../pkg/2.配套插件/VOIDPlus/"

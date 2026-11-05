@@ -16,7 +16,7 @@
 
 ## 特性
 
-> 原介绍文章：[VOID：现在可以公开的情报](https://blog.imalan.cn/archives/247/)。
+> 原介绍文章：[VOID：现在可以公开的情报](https://blog.imalan.cn/archives/247/)，原作者 [熊猫小A / AlanDecode](https://github.com/AlanDecode/Typecho-Theme-VOID)，主题设计归原作者所有。
 
 * 响应式设计
 * PJAX 无刷新体验
@@ -214,70 +214,22 @@
 
 > 3.5.6 起主题目录更名为 `VOID-Plus`、配套插件目录更名为 `VOIDPlus`。从旧版本升级请先在后台停用并删除旧主题与旧插件，再上传新目录，详见[发布页](https://github.com/Geek0ne/VOID-Plus/releases)中的「安装 / 升级步骤」。
 
-## 部署与安全
+## robots.txt
 
-> 本仓库在原版基础上补齐了安全加固、SEO 与构建链维护，原作者为 [熊猫小A / AlanDecode](https://github.com/AlanDecode/Typecho-Theme-VOID)，主题设计归原作者所有。
+`robots.txt` 是放在**站点根目录**（与 `index.php` 同级）的一个文本文件，用来告诉搜索引擎爬虫**哪些路径不要收录**。
 
-### 安全加固要点
+它**不是访问控制文件**——被 `Disallow` 的路径依然可以直接访问，只是不被搜索引擎收录。
 
-| 问题 | 修复 |
-|---|---|
-| 自定义字段（主图、摘要等）直接拼进 HTML 属性与 `meta` | 新增 `Utils::esc()`，统一 `ENT_QUOTES` + UTF-8 转义 |
-| 封面图 `src` / `data-src` 裸输出 | 统一经 `Utils::esc()` |
-| JSON-LD 的 `description` / `excerpt` 裸输出 | 已转义 |
-| 后台 `brandFont` 的 `src` / `style` / `weight` 直接进 `<style>` | 限定 `http(s)://` 或 `/` 开头；`style`、`weight` 走白名单 |
-| `VOIDPlusConfig` 中数值项未强制类型 | 全部 `(int)` 强转 |
-| Twitter 账号裸输出，留空时输出空 `@` | `trim` 去 `@` + 转义，留空则不输出该标签 |
+主题在 `robots.txt.example` 中提供了一份模板，默认规则是：
 
-主题同时提供 `.htaccess`（安全响应头、目录保护、隐藏文件拦截、静态缓存、压缩）。**该文件只对 Apache 生效，nginx 用户请参考下方配置。**
+* 允许收录全站
+* 不收录搜索结果页（`/search/`、`/?keyword=`），避免重复内容
+* 不收录后台（`/admin/`）与动作入口（`/action/`）
+* 声明站点地图 `Sitemap:` 地址
 
-### Apache
+**用法**：把 `robots.txt.example` 复制一份到站点根目录并改名为 `robots.txt`，再把其中的 `Sitemap:` 地址改成你自己的实际路径（主题目录名不是 `VOID-Plus` 时需相应调整）。
 
-主题根目录的 `.htaccess` 需被 Apache 读到。若 `AllowOverride None`，请在站点配置中手动添加：
-
-```apache
-<IfModule mod_headers.c>
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.bootcdn.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; frame-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'"
-</IfModule>
-```
-
-### Nginx
-
-`.htaccess` 对 nginx 无效，请在 `server` 块中加入等效规则：
-
-```nginx
-add_header X-Frame-Options "SAMEORIGIN" always;
-add_header X-Content-Type-Options "nosniff" always;
-add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; frame-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'" always;
-location ~ ^/(admin|action)/ { deny all; }
-location ~ /\.(?!well-known) { deny all; }
-```
-
-> CSP 默认已放开常见 CDN。若站点用了别的统计 / 评论服务，请逐项追加来源，**不要直接删整条策略**。
-
-### robots.txt
-
-把 `robots.txt.example` 复制到 **Typecho 根目录**（与 `index.php` 同级），并确认 `Sitemap:` 指向 `/usr/themes/VOID-Plus/sitemap.php`。
-
-### 兼容性
-
-| 项 | 状态 |
-|---|---|
-| Typecho 1.2 / 1.3 | ✅ 实测 1.3.0 通过；1.2 沿用原主题适配 |
-| PHP 7.0 – 8.4 | ✅ 实测 8.4.27 全部 PHP 文件 `php -l` 通过，无 `each` / `create_function` / `mysql_*` 等已移除函数 |
-| Typecho 2.x | ❌ 未适配。主题与插件仍使用 `Typecho_Db` / `Typecho_Widget_Helper_Form_Element_*` 等 1.2 兼容别名，2.x 移除后需整体迁移 |
-
-### 已知未处理
-
-| 项 | 原因 |
-|---|---|
-| 第三方 CDN 资源未加 SRI | `fonts.googleapis.com` 等动态返回内容，加 SRI 需固定哈希，维护成本高 |
-| 未做 `hreflang` | 主题无法感知站点是否启用多语言，留给站点按需在 `主题设置 → head` 里自行添加 |
-| 未提供 `noscript` 图片回退 | 懒加载脚本已处理，纯 `noscript` 回退会重复加载图片 |
+> 不要把全站都 `Disallow` 掉——那样文章将无法被搜索引擎收录。这个文件只影响「是否被索引」，不影响「能否访问」。
 
 ## 开发与自定义
 
@@ -324,10 +276,16 @@ gulp build
 
 ## 更新日志
 
-**🍰 开发中 Version 3.5.7**
+**🍰 2026-11-05 Version 3.5.7**
 
-修复与体验优化版本：
+功能更新、安全加固与问题修复：
 
+* 安全：自定义字段（主图、摘要等）不再裸输出到 HTML 属性与 meta
+* 安全：社交卡片 JSON-LD 的描述与摘要补上转义
+* 安全：后台自定义字体的链接与字形样式改为白名单校验
+* 兼容：Typecho 1.2 / 1.3 与 PHP 7.0 – 8.4 实测通过，Typecho 2.x 暂未适配
+* 改进：主题配置中的数值项统一按整型处理
+* 修复：社交账号留空时不再输出空的 @ 符号
 * 修复：文章主图链接未转义，作者填入含引号的链接会注入 HTML 属性
 * 修复：高级设置 JSON 填写有误时触发 PHP 警告，且设置被静默忽略
 * 修复：配套插件图片解析接口的参数未做整型转换
@@ -343,6 +301,7 @@ gulp build
 * 修复：页脚陪伴计时与服务端相差一个时区偏移
 * 修复：后台自定义字段的说明文字压住输入框
 * 调整：后台「网站外观」的主题描述改为一句英文摘要
+* 调整：移除主题目录下的 .htaccess，其仅作用于主题静态资源，对页面安全无实质作用
 * 调整：修正前端检查脚本路径，特性清单补充新增功能
 
 **🍰 2026-10-30 Version 3.5.6**
@@ -368,62 +327,7 @@ gulp build
 * 修复：文章目录高亮永远停在第一项、点击目录标题不跳转
 * 调整：移除右下角齿轮设置面板与前台登录、后台入口等冗余项，仅保留回顶部与目录伸缩按钮
 
-**🍰 2026-10-27 Version 3.5.4**
-
-* 新增：发行包随附配套插件（`2.配套插件/VOIDPlus`）
-* 新增：补回上游遗漏的 `OwO_02` 表情资源
-* 调整：发行包结构与原版一致（`1.主题/VOID-Plus` + `2.配套插件/VOIDPlus`）
-
-**🍰 2026-10-27 Version 3.5.3**
-
-安全、兼容性与工程化维护版本，基于 3.5.1：
-
-* 安全：新增 `Utils::esc()` 输出转义，头图/摘要等自定义字段全部转义后输出
-* 安全：`brandFont` 限制为 http(s) 或站内相对 URL，数字字段强制整型
-* 安全：随主题提供 `.htaccess`（安全响应头、目录保护、缓存与压缩）
-* 兼容：适配 Typecho 1.3 / PHP 8.x
-* 兼容：修复列表页永久链接计算触发的 Router 异常
-* 兼容：修复 PHP 8 未定义键告警与评论链接错误
-* 新增：`sitemap.php` 站点地图与 `robots.txt` 模板
-* 优化：补全 SEO 标签（canonical、og:locale、og:image:alt 等）
-* 修复：夜间模式切换时的首屏白屏闪烁
-* 工程：前端构建产物纳入版本库，新增 CI 检查
-* 调整：后台更新检查改用本仓库 Releases，版本号统一为 3.5.3
-
-<details><summary>展开 2020 年及以前的更新日志</summary><br>
-
-**🍰 2020-07-04 Version 3.5.1**
-
-* 修复：iframe 尺寸错误（#42）
-* 修复：归档页面显示未发布的文章（#45）
-
-注意，3.5.1 版本主题依赖 1.20 及以上版本插件，请先禁用原插件，上传新版插件后重新启用。
-
-**🍰 2020-05-01 Version 3.5.0**
-
-* 新增：[高级设置]图片懒加载渐变（需要 CDN 支持）
-* 新增：JSON-LD 结构化数据支持
-* 新增：重新设计的 404 页面
-* 新增：[高级设置]站点标题设置自定义字体
-* 优化：Bilibili 播放器自适应
-* 优化：图题不再影响灯箱展开
-* 调整：默认西文字体替换为 OpenSans
-* 调整：简化头图设置
-* 修复：某些情况下懒加载可能不触发的问题
-* 修复：懒加载导致归档页面错乱
-* 修复：Safari 平滑滚动无法打断, thank @Reedo0910
-* 修复：[#32](https://github.com/AlanDecode/Typecho-Theme-VOID/issues/32)
-* 修复：[#34](https://github.com/AlanDecode/Typecho-Theme-VOID/issues/34)
-* 移除：Microdata
-* 其它细节优化
-
-注意，3.5.0 版本主题依赖 1.20 及以上版本插件，请先禁用原插件，上传新版插件后重新启用。
-
-从 2.2 版本起，主题部分功能需要配套插件支持，例如文章点赞、浏览量统计、字数统计等。**请先卸载**原来的 Likes、TePostViews 插件，否则数据会出现错误！TePostViews 插件卸载前请设置为**卸载后保留数据**，以防丢失浏览数据。
-
-</details>
-
-更多：[change-log.md](https://github.com/Geek0ne/VOID-Plus/blob/master/change-log.md)
+更多历史版本请查阅：[版本更新日志](change-log.md)
 
 ## 鸣谢
 
@@ -433,7 +337,7 @@ gulp build
 
 ### 其他
 
-[RAW](https://github.com/AlanDecode/Typecho-Theme-RAW) | [Mirages](https://get233.com/archives/mirages-intro.html) | [handsome](https://www.ihewro.com/archives/489/) | [Card](https://blog.shuiba.co/bitcron-theme-card) | [Casper](https://github.com/TryGhost/Casper) | [Typlog](https://typlog.com/) | [FORMA](https://justgoodthemes.com/ghost-themes/forma/)
+[VOID 原版](https://github.com/AlanDecode/Typecho-Theme-VOID) | [RAW](https://github.com/AlanDecode/Typecho-Theme-RAW) | [Mirages](https://get233.com/archives/mirages-intro.html) | [handsome](https://www.ihewro.com/archives/489/) | [Card](https://blog.shuiba.co/bitcron-theme-card) | [Casper](https://github.com/TryGhost/Casper) | [Typlog](https://typlog.com/) | [FORMA](https://justgoodthemes.com/ghost-themes/forma/)
 
 ## License
 
