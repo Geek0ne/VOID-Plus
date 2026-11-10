@@ -11,6 +11,9 @@
 <p align="center">
   <a href="https://github.com/Geek0ne/VOID-Plus/actions"><img alt="Build" src="https://github.com/Geek0ne/VOID-Plus/actions/workflows/ci.yml/badge.svg"></a>&nbsp;&nbsp;&nbsp;
   <a href="https://github.com/Geek0ne/VOID-Plus/releases"><img alt="release" src="https://img.shields.io/github/v/release/Geek0ne/VOID-Plus?style=flat-square"></a>&nbsp;&nbsp;&nbsp;
+  <a href="https://typecho.org"><img alt="Typecho" src="https://img.shields.io/badge/Typecho-1.2%2B-1a1a1a?style=flat-square"></a>&nbsp;&nbsp;&nbsp;
+  <a href="https://www.php.net"><img alt="PHP" src="https://img.shields.io/badge/PHP-7.0%2B-1a1a1a?style=flat-square"></a>&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/Geek0ne/VOID-Plus/commits/master"><img alt="last commit" src="https://img.shields.io/github/last-commit/Geek0ne/VOID-Plus?style=flat-square"></a>&nbsp;&nbsp;&nbsp;
   <a href="https://github.com/Geek0ne/VOID-Plus/blob/master/LICENSE"><img alt="license" src="https://img.shields.io/github/license/Geek0ne/VOID-Plus?style=flat-square"></a>
 </p>
 
@@ -276,6 +279,19 @@ gulp build
 
 ## 更新日志
 
+**🍰 2026-11-11 Version 3.6.0**
+
+功能增强与工程基建版本：
+
+* 新增：文章底部分享新增微信、QQ、Facebook、Instagram、Telegram、LinkedIn、Pinterest、Tumblr 八个平台
+* 新增：分享支持一键复制文章链接，复制后浮层提示
+* 调整：分享按钮点击不再弹出空白标签页
+* 新增：404 页面重做，含站内搜索框、返回首页与返回上一页
+* 新增：README 徽章补充 Typecho 版本、PHP 版本与最后提交时间
+* 工程：CI 增加一致性校验，覆盖版本号、更新日志与 SCSS 和 CSS 同步
+* 工程：引入 Dependabot，自动检查依赖更新
+* 工程：新增贡献指南，规范开发流程与提交流程
+
 **🍰 2026-11-05 Version 3.5.7**
 
 功能更新、安全加固与问题修复：
@@ -317,15 +333,6 @@ gulp build
 * 调整：移动端文章正文字号调小两号（18px → 16px）
 * 调整：正文链接未访问显示蓝色、已访问显示紫色，暗色模式同步适配
 * 调整：样式改动同步维护于 SCSS 源码与编译产物，gulp 构建不会丢失
-
-**🍰 2026-10-29 Version 3.5.5**
-
-修复与体验优化版本：
-
-* 修复：首页刷新时闪现无样式页面（FOUC）
-* 修复：右下角"回到顶部"按钮点击无反应
-* 修复：文章目录高亮永远停在第一项、点击目录标题不跳转
-* 调整：移除右下角齿轮设置面板与前台登录、后台入口等冗余项，仅保留回顶部与目录伸缩按钮
 
 更多历史版本请查阅：[版本更新日志](change-log.md)
 

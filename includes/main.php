@@ -75,8 +75,16 @@ $setting = $GLOBALS['VOIDPlusSetting'];
                             </a>
                         <?php endif; ?>
                         
-                        <a aria-label="分享到微博" href="javascript:void(0);" onclick="Share.toWeibo(this);" class="social-button-icon"><i class="voidicon-weibo"></i></a>
-                        <a aria-label="分享到Twitter" href="javascript:void(0);" onclick="Share.toTwitter(this);" class="social-button-icon"><i class="voidicon-twitter"></i></a>
+                        <a aria-label="分享到微信" href="javascript:void(0);" target="_self" onclick="Share.toWechat(this);" class="social-button-icon"><i class="voidicon-wechat"></i></a>
+                        <a aria-label="分享到QQ" href="javascript:void(0);" target="_self" onclick="Share.toQQ(this);" class="social-button-icon"><i class="voidicon-qq"></i></a>
+                        <a aria-label="分享到微博" href="javascript:void(0);" target="_self" onclick="Share.toWeibo(this);" class="social-button-icon"><i class="voidicon-weibo"></i></a>
+                        <a aria-label="分享到Twitter" href="javascript:void(0);" target="_self" onclick="Share.toTwitter(this);" class="social-button-icon"><i class="voidicon-twitter"></i></a>
+                        <a aria-label="分享到Facebook" href="javascript:void(0);" target="_self" onclick="Share.toFacebook(this);" class="social-button-icon"><i class="voidicon-facebook"></i></a>
+                        <a aria-label="分享到Instagram" href="javascript:void(0);" target="_self" onclick="Share.toInstagram(this);" class="social-button-icon"><i class="voidicon-instagram"></i></a>
+                        <a aria-label="分享到Telegram" href="javascript:void(0);" target="_self" onclick="Share.toTelegram(this);" class="social-button-icon"><i class="voidicon-telegram"></i></a>
+                        <a aria-label="分享到LinkedIn" href="javascript:void(0);" target="_self" onclick="Share.toLinkedIn(this);" class="social-button-icon"><i class="voidicon-linkedin"></i></a>
+                        <a aria-label="分享到Pinterest" href="javascript:void(0);" target="_self" onclick="Share.toPinterest(this);" class="social-button-icon"><i class="voidicon-pinterest"></i></a>
+                        <a aria-label="分享到Tumblr" href="javascript:void(0);" target="_self" onclick="Share.toTumblr(this);" class="social-button-icon"><i class="voidicon-tumblr"></i></a>
                     </div>
                 </article>
 

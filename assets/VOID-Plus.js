@@ -498,6 +498,116 @@ var Share = {
         var url = 'https://twitter.com/intent/tweet?text=分享《'+ content.title + '》 @' + content.twitter + '%0a%0a' + content.excerpt
             + '%20' + content.url;
         window.open(url);
+    },
+
+    // 统一的浮层提示（微信、Instagram 没有 Web 分享接口，只能复制链接）
+    notify: function (message) {
+        var tip = document.getElementById('void-share-tip');
+        if (!tip) {
+            tip = document.createElement('div');
+            tip.id = 'void-share-tip';
+            tip.setAttribute('role', 'status');
+            tip.style.cssText = [
+                'position:fixed',
+                'left:50%',
+                'top:36px',
+                'transform:translate(-50%,-12px)',
+                'z-index:99999',
+                'max-width:80vw',
+                'padding:10px 20px',
+                'border-radius:8px',
+                'font-size:14px',
+                'line-height:1.5',
+                'text-align:center',
+                'color:#fff',
+                'background:rgba(0,0,0,.82)',
+                'box-shadow:0 6px 24px rgba(0,0,0,.24)',
+                'opacity:0',
+                'pointer-events:none',
+                'transition:opacity .2s ease,transform .2s ease'
+            ].join(';');
+            document.body.appendChild(tip);
+        }
+        tip.textContent = message;
+        requestAnimationFrame(function () {
+            tip.style.opacity = '1';
+            tip.style.transform = 'translate(-50%,0)';
+        });
+        clearTimeout(Share.tipTimer);
+        Share.tipTimer = setTimeout(function () {
+            tip.style.opacity = '0';
+            tip.style.transform = 'translate(-50%,-12px)';
+        }, 2200);
+    },
+
+    copyLink: function (text, message) {
+        var done = function () {
+            Share.notify(message);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, function () {
+                VOIDPlus_Content.copyFallback(text);
+                done();
+            });
+        } else {
+            VOIDPlus_Content.copyFallback(text);
+            done();
+        }
+    },
+
+    open: function (url) {
+        window.open(url, '_blank', 'noopener');
+    },
+
+    toFacebook: function (item) {
+        var content = Share.parseItem(item);
+        Share.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(content.url)
+            + '&quote=' + encodeURIComponent('分享《' + content.title + '》'));
+    },
+
+    toInstagram: function (item) {
+        var content = Share.parseItem(item);
+        Share.copyLink(content.url, '链接已复制，打开 Instagram 粘贴到动态即可分享');
+    },
+
+    toWechat: function (item) {
+        var content = Share.parseItem(item);
+        Share.copyLink(content.url, '链接已复制，粘贴到微信发给好友或朋友圈');
+    },
+
+    toQQ: function (item) {
+        var content = Share.parseItem(item);
+        Share.open('https://sns.qzone.qq.com/cgi-bin/qzshare/qzshare_init?url=' + encodeURIComponent(content.url)
+            + '&title=' + encodeURIComponent(content.title)
+            + '&summary=' + encodeURIComponent(content.excerpt));
+    },
+
+    toTelegram: function (item) {
+        var content = Share.parseItem(item);
+        Share.open('https://t.me/share/url?url=' + encodeURIComponent(content.url)
+            + '&text=' + encodeURIComponent('分享《' + content.title + '》'));
+    },
+
+    toLinkedIn: function (item) {
+        var content = Share.parseItem(item);
+        Share.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(content.url));
+    },
+
+    toPinterest: function (item) {
+        var content = Share.parseItem(item);
+        var url = 'https://www.pinterest.com/pin/create/button/?url=' + encodeURIComponent(content.url)
+            + '&description=' + encodeURIComponent(content.title);
+        if (content.img) {
+            url += '&media=' + encodeURIComponent(content.img);
+        }
+        Share.open(url);
+    },
+
+    toTumblr: function (item) {
+        var content = Share.parseItem(item);
+        Share.open('https://www.tumblr.com/widgets/share/tool?canonicalUrl=' + encodeURIComponent(content.url)
+            + '&title=' + encodeURIComponent(content.title)
+            + '&caption=' + encodeURIComponent(content.excerpt));
     }
 };
 

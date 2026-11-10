@@ -1,0 +1,48 @@
+## 功能增强与工程基建
+
+### ✨ 新增
+
+- **文章分享扩至十个平台**：除原有的微博、Twitter 外，新增微信、QQ、Facebook、Instagram、Telegram、LinkedIn、Pinterest、Tumblr
+- **一键复制链接**：微信与 Instagram 没有网页分享接口，点击后自动复制文章链接并浮层提示
+- **404 页面重做**：居中卡片式布局，含大号 404 标识、站内搜索框、返回首页与返回上一页按钮，支持亮色与暗色模式
+- **README 徽章**：补充 Typecho 最低版本、PHP 最低版本与最后提交时间
+
+### 🎨 体验与样式
+
+- 分享按钮点击不再弹出空白标签页
+- 分享图标沿用主题既有图标字体，无需额外资源，样式与原来两个按钮完全一致
+
+### 🔧 工程与维护
+
+- **CI 一致性校验**：新增 `consistency` job，检查版本号三处声明一致、README 与 change-log 更新日志逐字一致、SCSS 选择器与 CSS 产物同步
+- **Dependabot**：自动检查 npm 依赖与 GitHub Actions 的版本更新
+- **贡献指南**：新增 `CONTRIBUTING.md`，整理环境要求、构建方式、代码风格、提交规范与发版流程
+
+### ✅ 兼容性
+
+- Typecho 1.2 / 1.3 与 PHP 7.0 – 8.4 实测通过（PHP 8.4.27 全部文件语法检查无误）
+- 本版不改动主题设置项，老站升级后覆盖目录即可
+
+---
+
+## 安装 / 升级
+
+### 全新安装
+
+1. 在[发布页](https://github.com/Geek0ne/VOID-Plus/releases)下载 `VOID-Plus-3.6.0.zip`
+2. 解压后得到两个目录：
+   - `1.主题/VOID-Plus` → 整个目录上传到站点的 `/usr/themes` 目录
+   - `2.配套插件/VOIDPlus` → 整个目录上传到站点的 `/usr/plugins` 目录
+3. 后台「外观」启用 **VOID-Plus** 主题
+4. 后台「插件」启用 **VOIDPlus** 插件（文章字数统计、点赞、浏览量统计依赖它）
+5. 可选：把主题 `assets/VOID-Plus-CacheRule.js` 复制一份到站点根目录，并在主题设置「自定义 Service Worker」中填好该文件名
+
+### 从 3.5.7 升级
+
+1. 直接覆盖站点的 `usr/themes/VOID-Plus` 目录即可，主题设置不会丢失
+2. 配套插件如有更新，同样覆盖 `usr/plugins/VOIDPlus` 目录
+
+### 升级注意事项
+
+- 本版没有新增后台设置项，不需要重新填写任何配置
+- 分享按钮从两个增加到十个，如果觉得图标过多，可以自行在 `includes/main.php` 中删掉不用的按钮

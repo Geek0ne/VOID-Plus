@@ -34,7 +34,7 @@ function themeInit()
 }
 
 $GLOBALS['VOIDPlusPluginREQ'] = 1.2;
-$GLOBALS['VOIDPlusVersion'] = '3.5.7';
+$GLOBALS['VOIDPlusVersion'] = '3.6.0';
 
 /**
  * 主题设置
