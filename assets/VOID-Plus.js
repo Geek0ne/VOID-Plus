@@ -500,8 +500,9 @@ var Share = {
         window.open(url);
     },
 
-    // 统一的浮层提示（微信、Instagram 没有 Web 分享接口，只能复制链接）
-    notify: function (message) {
+    // 统一的浮层提示。传入锚点元素时贴在按钮上方，避免用户在页面底部点击
+    // 却看不到出现在页面顶部的提示
+    notify: function (message, anchor) {
         var tip = document.getElementById('void-share-tip');
         if (!tip) {
             tip = document.createElement('div');
@@ -529,6 +530,30 @@ var Share = {
             document.body.appendChild(tip);
         }
         tip.textContent = message;
+
+        var top = 36;
+        var left = '50%';
+        var hidden = 'translate(-50%,-12px)';
+        if (anchor && anchor.getBoundingClientRect) {
+            var rect = anchor.getBoundingClientRect();
+            if (rect.width && rect.top) {
+                top = Math.max(12, rect.top - 58);
+                left = Math.round(rect.left + rect.width / 2) + 'px';
+                hidden = 'translate(-50%,6px)';
+            }
+        }
+        var margin = 16;
+        var maxLeft = Math.max(margin, (window.innerWidth || 800) - margin);
+        var leftPx = parseInt(left, 10);
+        if (!isNaN(leftPx) && leftPx > maxLeft) {
+            left = maxLeft + 'px';
+        }
+        if (!isNaN(leftPx) && leftPx < margin) {
+            left = margin + 'px';
+        }
+        tip.style.left = left;
+        tip.style.top = top + 'px';
+
         requestAnimationFrame(function () {
             tip.style.opacity = '1';
             tip.style.transform = 'translate(-50%,0)';
@@ -536,13 +561,13 @@ var Share = {
         clearTimeout(Share.tipTimer);
         Share.tipTimer = setTimeout(function () {
             tip.style.opacity = '0';
-            tip.style.transform = 'translate(-50%,-12px)';
-        }, 2200);
+            tip.style.transform = hidden;
+        }, 2400);
     },
 
-    copyLink: function (text, message) {
+    copyLink: function (text, message, anchor) {
         var done = function () {
-            Share.notify(message);
+            Share.notify(message, anchor);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(done, function () {
@@ -555,6 +580,28 @@ var Share = {
         }
     },
 
+    // 优先调起系统分享面板（移动端可直接选微信、QQ、Instagram 等），
+    // 不可用或被取消时回退为复制链接
+    nativeShare: function (item, message) {
+        var content = Share.parseItem(item);
+        var payload = {
+            title: content.title,
+            text: content.excerpt || content.title,
+            url: content.url
+        };
+        if (navigator.share) {
+            try {
+                navigator.share(payload).then(function () {}, function () {
+                    Share.copyLink(content.url, message, item);
+                });
+                return;
+            } catch (e) {
+                // 非用户手势等情况下会抛错，继续走复制
+            }
+        }
+        Share.copyLink(content.url, message, item);
+    },
+
     open: function (url) {
         window.open(url, '_blank', 'noopener');
     },
@@ -565,21 +612,19 @@ var Share = {
             + '&quote=' + encodeURIComponent('分享《' + content.title + '》'));
     },
 
+    // Instagram 没有网页分享接口：移动端走系统分享，桌面端复制链接
     toInstagram: function (item) {
-        var content = Share.parseItem(item);
-        Share.copyLink(content.url, '链接已复制，打开 Instagram 粘贴到动态即可分享');
+        Share.nativeShare(item, '链接已复制，去 Instagram 粘贴到动态');
     },
 
+    // 微信没有网页分享接口：移动端走系统分享，桌面端复制链接
     toWechat: function (item) {
-        var content = Share.parseItem(item);
-        Share.copyLink(content.url, '链接已复制，粘贴到微信发给好友或朋友圈');
+        Share.nativeShare(item, '链接已复制，去微信粘贴发给好友或朋友圈');
     },
 
+    // 腾讯的 qzshare 接口已对未备案站点返回空白页，改走系统分享 / 复制链接
     toQQ: function (item) {
-        var content = Share.parseItem(item);
-        Share.open('https://sns.qzone.qq.com/cgi-bin/qzshare/qzshare_init?url=' + encodeURIComponent(content.url)
-            + '&title=' + encodeURIComponent(content.title)
-            + '&summary=' + encodeURIComponent(content.excerpt));
+        Share.nativeShare(item, '链接已复制，去 QQ 粘贴发给好友');
     },
 
     toTelegram: function (item) {

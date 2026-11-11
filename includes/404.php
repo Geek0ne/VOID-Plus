@@ -26,6 +26,8 @@ $searchBase = ob_get_clean();
             <img src="<?php echo Utils::esc($banner); ?>" alt="" />
         <?php endif; ?>
         <div class="void-404-mask"></div>
+        <div class="void-404-grid"></div>
+        <div class="void-404-watermark" aria-hidden="true">404</div>
     </div>
 
     <div class="void-404-card">
@@ -53,7 +55,6 @@ $searchBase = ob_get_clean();
     justify-content: center;
     min-height: 100vh;
     padding: 2rem 1.25rem;
-    background: #f5f5f7;
     color: rgba(0, 0, 0, .86);
     font-family: 'Open Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', Helvetica, Arial, sans-serif;
 }
@@ -65,11 +66,40 @@ $searchBase = ob_get_clean();
     left: 0;
     z-index: 0;
     overflow: hidden;
+    background:
+        radial-gradient(1100px 520px at 12% 6%, rgba(189, 98, 98, .20), transparent 62%),
+        radial-gradient(900px 480px at 88% 84%, rgba(74, 144, 226, .16), transparent 62%),
+        radial-gradient(760px 420px at 72% 8%, rgba(255, 214, 102, .14), transparent 60%),
+        linear-gradient(165deg, #f8f8fb 0%, #edeef4 55%, #e4e6ef 100%);
 }
 .void-404-bg img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+.void-404-grid {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image:
+        linear-gradient(rgba(0, 0, 0, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, .035) 1px, transparent 1px);
+    background-size: 46px 46px;
+}
+.void-404-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: Monoton, 'Open Sans', sans-serif;
+    font-size: min(42vw, 460px);
+    line-height: 1;
+    letter-spacing: .02em;
+    color: rgba(0, 0, 0, .045);
+    user-select: none;
+    pointer-events: none;
 }
 .void-404-mask {
     position: absolute;
@@ -180,8 +210,22 @@ $searchBase = ob_get_clean();
     background: #a85555;
 }
 body.theme-dark .void-404 {
-    background: #1a1a1a;
     color: #cececf;
+}
+body.theme-dark .void-404-bg {
+    background:
+        radial-gradient(1100px 520px at 12% 6%, rgba(189, 98, 98, .26), transparent 62%),
+        radial-gradient(900px 480px at 88% 84%, rgba(74, 144, 226, .20), transparent 62%),
+        radial-gradient(760px 420px at 72% 8%, rgba(255, 214, 102, .10), transparent 60%),
+        linear-gradient(165deg, #191a1e 0%, #121216 55%, #0c0c0f 100%);
+}
+body.theme-dark .void-404-grid {
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .04) 1px, transparent 1px);
+}
+body.theme-dark .void-404-watermark {
+    color: rgba(255, 255, 255, .05);
 }
 body.theme-dark .void-404-card {
     background: rgba(26, 26, 26, .88);

@@ -74,11 +74,11 @@ $setting = $GLOBALS['VOIDPlusSetting'];
         }
         </script>
         <?php endif; ?>
-        <script data-manual src="<?php Utils::indexTheme('/assets/bundle.js'); ?>"></script>
+        <script data-manual src="<?php Utils::indexTheme('/assets/bundle.js?v=' . $GLOBALS['VOIDPlusVersion']); ?>"></script>
         <?php if($setting['enableMath']): ?>
         <script src='<?php Utils::indexTheme('/assets/libs/mathjax/2.7.4/MathJax.js'); ?>'></script>
         <?php endif; ?>
-        <script src="<?php Utils::indexTheme('/assets/VOID-Plus.js'); ?>"></script>
+        <script src="<?php Utils::indexTheme('/assets/VOID-Plus.js?v=' . $GLOBALS['VOIDPlusVersion']); ?>"></script>
         <script>
         if($(".OwO").length > 0){
             new OwO({

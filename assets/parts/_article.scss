@@ -653,6 +653,11 @@ article {
     }
 }
 #social {
+    // id 与 class 在同一个元素上，必须用复合选择器 #social.post-like，
+    // 写成后代选择器 #social .post-like 永远命中不了
+    &.post-like {
+        border-radius: 999px;
+    }
     .post-like {
         margin: 0 auto;
         display: block;

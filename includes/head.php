@@ -138,11 +138,11 @@ if (isset($_POST['voidplus_action'])) {
     <?php $this->header('commentReply=&description=&'); ?>
 
     <!--CSS-->
-    <link rel="stylesheet" href="<?php Utils::indexTheme('/assets/bundle.css');?>">
-    <link rel="stylesheet" href="<?php Utils::indexTheme('/assets/VOID-Plus.css');?>">
+    <link rel="stylesheet" href="<?php Utils::indexTheme('/assets/bundle.css?v=' . $GLOBALS['VOIDPlusVersion']);?>">
+    <link rel="stylesheet" href="<?php Utils::indexTheme('/assets/VOID-Plus.css?v=' . $GLOBALS['VOIDPlusVersion']);?>">
 
     <!--JS-->
-    <script src="<?php Utils::indexTheme('/assets/bundle-header.js'); ?>"></script>
+    <script src="<?php Utils::indexTheme('/assets/bundle-header.js?v=' . $GLOBALS['VOIDPlusVersion']); ?>"></script>
     <script>
     VOIDPlusConfig = {
         PJAX : <?php echo $setting['pjax'] ? 'true' : 'false'; ?>,
@@ -171,7 +171,7 @@ if (isset($_POST['voidplus_action'])) {
         isDev: true
     }
     </script>
-    <script src="<?php Utils::indexTheme('/assets/header.js'); ?>"></script>
+    <script src="<?php Utils::indexTheme('/assets/header.js?v=' . $GLOBALS['VOIDPlusVersion']); ?>"></script>
     
     <?php echo $setting['head']; ?>
     <style>
