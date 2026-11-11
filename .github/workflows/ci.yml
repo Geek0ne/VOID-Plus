@@ -11,7 +11,7 @@ jobs:
     name: PHP syntax check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -50,7 +50,7 @@ jobs:
     name: SEO tags present
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: canonical and og tags must exist
         run: |
           set -e
@@ -75,7 +75,7 @@ jobs:
     name: Asset sources complete
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Sass sources present
         run: |
@@ -133,7 +133,7 @@ jobs:
     name: Consistency checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Version numbers, changelog parity and SCSS/CSS selectors
         run: python3 .github/scripts/check_consistency.py
