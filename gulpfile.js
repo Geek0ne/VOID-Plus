@@ -52,7 +52,7 @@ gulp.task('pack:js:dep', function () {
         .pipe(rev.manifest())
         .pipe(gulp.dest('temp/rev/js_bundle-header'));
 
-    return gulp.src(['./assets/libs/**/*.js', '!./assets/libs/header/**/*', '!./assets/libs/mathjax/**/*'])
+    return gulp.src(['./assets/libs/**/*.js', '!./assets/libs/header/**/*', '!./assets/libs/mathjax/**/*', '!./assets/libs/qrcode/**/*'])
         .pipe(concat('bundle.js'))
         .pipe(uglify())
         .pipe(rev())
@@ -84,7 +84,7 @@ gulp.task('md5', function () {
 
 // 无需处理的文件
 gulp.task('move', function () {
-    gulp.src(['./assets/libs/owo/**/*', './assets/libs/mathjax/**/*'], { base: './assets/libs/' })
+    gulp.src(['./assets/libs/owo/**/*', './assets/libs/mathjax/**/*', './assets/libs/qrcode/**/*'], { base: './assets/libs/' })
         .pipe(gulp.dest('./build/assets/libs/'));
     gulp.src(['./assets/sw-toolbox.js', './assets/VOID-CacheRule.js'])
         .pipe(gulp.dest('./build/assets/'));
@@ -110,7 +110,7 @@ gulp.task('dev', function () {
         .pipe(concat('bundle-header.js'))
         .pipe(gulp.dest('./assets/'));
 
-    return gulp.src(['./assets/libs/**/*.js', '!./assets/libs/header/**/*', '!./assets/libs/mathjax/**/*'])
+    return gulp.src(['./assets/libs/**/*.js', '!./assets/libs/header/**/*', '!./assets/libs/mathjax/**/*', '!./assets/libs/qrcode/**/*'])
         .pipe(concat('bundle.js'))
         .pipe(gulp.dest('./assets/'));
 });

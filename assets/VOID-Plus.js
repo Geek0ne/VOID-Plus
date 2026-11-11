@@ -580,30 +580,178 @@ var Share = {
         }
     },
 
-    // 优先调起系统分享面板（移动端可直接选微信、QQ、Instagram 等），
-    // 不可用或被取消时回退为复制链接
-    nativeShare: function (item, message) {
+    // 优先调起系统分享面板（移动端可直接在面板里选微信、QQ、Instagram，
+    // 标题与链接一并带过去）；浏览器不支持或用户取消时，走平台专属方案
+    withNativeShare: function (item, fallback) {
         var content = Share.parseItem(item);
-        var payload = {
-            title: content.title,
-            text: content.excerpt || content.title,
-            url: content.url
-        };
         if (navigator.share) {
             try {
-                navigator.share(payload).then(function () {}, function () {
-                    Share.copyLink(content.url, message, item);
+                navigator.share({
+                    title: content.title,
+                    text: content.excerpt || content.title,
+                    url: content.url
+                }).then(function () {}, function () {
+                    fallback(content, item);
                 });
                 return;
             } catch (e) {
-                // 非用户手势等情况下会抛错，继续走复制
+                // 非用户手势等情况下会抛错，继续走平台专属方案
             }
         }
-        Share.copyLink(content.url, message, item);
+        fallback(content, item);
     },
 
     open: function (url) {
         window.open(url, '_blank', 'noopener');
+    },
+
+    // 二维码浮层：微信等无网页分享接口的平台用它让用户扫码分享
+    showQrCode: function (url, title, tip) {
+        Share.loadQrCode(function () {
+            Share.renderQrCode(url, title, tip);
+        });
+    },
+
+    // 二维码库独立存放，按需加载，不进主包
+    loadQrCode: function (done) {
+        if (typeof qrcode === 'function') {
+            done();
+            return;
+        }
+        var script = document.getElementById('void-qrcode-script');
+        if (script) {
+            script.onload = done;
+            script.onerror = done;
+            return;
+        }
+        var src = (window.VOIDPlusConfig && VOIDPlusConfig.qrcodeUrl) || '';
+        if (!src) {
+            done();
+            return;
+        }
+        script = document.createElement('script');
+        script.id = 'void-qrcode-script';
+        script.src = src;
+        script.onload = done;
+        script.onerror = done;
+        document.head.appendChild(script);
+    },
+
+    renderQrCode: function (url, title, tip) {
+        var layer = document.getElementById('void-share-qrcode');
+        if (!layer) {
+            layer = document.createElement('div');
+            layer.id = 'void-share-qrcode';
+            layer.style.cssText = [
+                'position:fixed',
+                'top:0', 'right:0', 'bottom:0', 'left:0',
+                'z-index:99998',
+                'display:flex',
+                'align-items:center',
+                'justify-content:center',
+                'padding:20px',
+                'background:rgba(0,0,0,.55)',
+                'opacity:0',
+                'transition:opacity .2s ease'
+            ].join(';');
+            layer.innerHTML = '<div class="void-share-qrcode-card">'
+                + '<div class="void-share-qrcode-tip"></div>'
+                + '<div class="void-share-qrcode-body"></div>'
+                + '<div class="void-share-qrcode-title"></div>'
+                + '<div class="void-share-qrcode-url"></div>'
+                + '<button type="button" class="void-share-qrcode-close">关闭</button>'
+                + '</div>';
+            document.body.appendChild(layer);
+            layer.addEventListener('click', function (e) {
+                if (e.target === layer || e.target.className === 'void-share-qrcode-close') {
+                    Share.hideQrCode();
+                }
+            });
+        }
+
+        var card = layer.firstChild;
+        card.style.cssText = [
+            'width:100%', 'max-width:300px',
+            'padding:22px 20px 18px',
+            'border-radius:14px',
+            'background:#fff',
+            'color:#333',
+            'text-align:center',
+            'box-shadow:0 20px 60px rgba(0,0,0,.35)',
+            'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,'
+                + 'PingFang SC,Hiragino Sans GB,Microsoft Yahei,sans-serif'
+        ].join(';');
+
+        var tipEl = layer.querySelector('.void-share-qrcode-tip');
+        tipEl.style.cssText = 'font-size:15px;font-weight:600;margin-bottom:14px;';
+        tipEl.textContent = tip || '扫码分享';
+
+        var body = layer.querySelector('.void-share-qrcode-body');
+        body.style.cssText = 'width:200px;height:200px;margin:0 auto;';
+        body.innerHTML = '';
+
+        var titleEl = layer.querySelector('.void-share-qrcode-title');
+        titleEl.style.cssText = 'font-size:13px;margin-top:12px;color:#555;'
+            + 'word-break:break-all;line-height:1.5;';
+        titleEl.textContent = title || '';
+
+        var urlEl = layer.querySelector('.void-share-qrcode-url');
+        urlEl.style.cssText = 'font-size:11px;margin-top:4px;color:#999;'
+            + 'word-break:break-all;line-height:1.4;';
+        urlEl.textContent = url;
+
+        var closeBtn = layer.querySelector('.void-share-qrcode-close');
+        closeBtn.style.cssText = 'margin-top:14px;padding:7px 22px;border:none;'
+            + 'border-radius:8px;cursor:pointer;font-size:14px;'
+            + 'color:#fff;background:#bd6262;';
+
+        // 生成二维码（0 表示自动选择可容纳的最小版本）
+        if (typeof qrcode === 'function') {
+            var code = null;
+            for (var t = 0; t <= 40; t++) {
+                try {
+                    var q = qrcode(t, 'M');
+                    q.addData(url);
+                    q.make();
+                    code = q;
+                    break;
+                } catch (e) {
+                    // 容量不足，换更大的版本号
+                }
+            }
+            if (code) {
+                body.innerHTML = code.createSvgTag({cellSize: 4, margin: 2, scalable: true});
+                var svg = body.firstChild;
+                svg.setAttribute('width', '200');
+                svg.setAttribute('height', '200');
+                svg.style.width = '200px';
+                svg.style.height = '200px';
+            }
+        }
+        if (!body.innerHTML) {
+            body.style.cssText = 'width:auto;height:auto;color:#999;font-size:13px;'
+                + 'line-height:1.6;';
+            body.textContent = '二维码生成失败，请复制链接分享';
+        }
+
+        layer.style.opacity = '1';
+        Share.qrcodeEsc = function (e) {
+            if (e.keyCode === 27) {
+                Share.hideQrCode();
+            }
+        };
+        document.addEventListener('keydown', Share.qrcodeEsc);
+    },
+
+    hideQrCode: function () {
+        var layer = document.getElementById('void-share-qrcode');
+        if (layer) {
+            layer.style.opacity = '0';
+        }
+        if (Share.qrcodeEsc) {
+            document.removeEventListener('keydown', Share.qrcodeEsc);
+            Share.qrcodeEsc = null;
+        }
     },
 
     toFacebook: function (item) {
@@ -612,19 +760,41 @@ var Share = {
             + '&quote=' + encodeURIComponent('分享《' + content.title + '》'));
     },
 
-    // Instagram 没有网页分享接口：移动端走系统分享，桌面端复制链接
+    // Instagram 没有网页分享接口：系统分享面板里可选中 Instagram，
+    // 否则唤起 Instagram App 并复制标题与链接
     toInstagram: function (item) {
-        Share.nativeShare(item, '链接已复制，去 Instagram 粘贴到动态');
+        Share.withNativeShare(item, function (content, anchor) {
+            Share.openInstagram(content, anchor);
+        });
     },
 
-    // 微信没有网页分享接口：移动端走系统分享，桌面端复制链接
+    openInstagram: function (content, anchor) {
+        try {
+            window.location.href = 'instagram://';
+        } catch (e) {
+            // 浏览器可能拦截自定义协议，忽略即可
+        }
+        Share.copyLink(content.title + '\n' + content.url,
+            '标题与链接已复制，打开 Instagram 粘贴分享', anchor);
+    },
+
+    // 微信没有网页分享接口：系统分享面板里可选中微信，
+    // 否则弹出二维码，用微信扫一扫即可分享链接与标题
     toWechat: function (item) {
-        Share.nativeShare(item, '链接已复制，去微信粘贴发给好友或朋友圈');
+        Share.withNativeShare(item, function (content) {
+            Share.showQrCode(content.url, content.title, '微信扫一扫，分享这篇文章');
+        });
     },
 
-    // 腾讯的 qzshare 接口已对未备案站点返回空白页，改走系统分享 / 复制链接
+    // 腾讯官方分享页：可分享到 QQ 好友、群组与 QQ 空间，页面自带二维码
     toQQ: function (item) {
-        Share.nativeShare(item, '链接已复制，去 QQ 粘贴发给好友');
+        Share.withNativeShare(item, function (content) {
+            Share.open('https://connect.qq.com/widget/shareqq/iframe_index.html?url='
+                + encodeURIComponent(content.url)
+                + '&title=' + encodeURIComponent(content.title)
+                + '&desc=' + encodeURIComponent(content.excerpt || content.title)
+                + '&site=' + encodeURIComponent(content.title));
+        });
     },
 
     toTelegram: function (item) {

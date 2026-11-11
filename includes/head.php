@@ -168,6 +168,7 @@ if (isset($_POST['voidplus_action'])) {
         verticalBg: <?php echo empty($setting['siteBgVertical']) ? 'false' : 'true'; ?>,
         indexStyle: <?php echo (int) $setting['indexStyle']; ?>,
         version: '<?php echo $GLOBALS['VOIDPlusVersion']; ?>',
+        qrcodeUrl: '<?php Utils::indexTheme('/assets/libs/qrcode/qrcode.js'); ?>',
         isDev: true
     }
     </script>
