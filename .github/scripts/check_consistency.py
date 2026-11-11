@@ -193,8 +193,15 @@ def strip_prefix(decl):
     return re.sub(r'^-(webkit|moz|ms|o)-', '', decl.strip().lower())
 
 
+# 注：声明「值」级别不作比对。压缩器会做等价改写（.67em 与 0.67em、
+# #fff 与 white、transparent 与 rgba(0,0,0,0)），要把这些等价形式可靠归一
+# 并不容易，误报率高。属性名级别的比对已足以发现「改了 SCSS 却没重新编译
+# CSS」的常见情形——新增或删除规则、增删属性。
+
+
 def parse_css(css):
     """解析 CSS，返回 {选择器: set(声明名)}；@media/@supports 内的规则并入顶层。"""
+    css = strip_comments(css)
     rules = {}
     stack = []
     buf = ''
@@ -221,7 +228,8 @@ def parse_css(css):
                     for s in header.split(','):
                         s = s.strip()
                         if s:
-                            rules.setdefault(s, set()).update(decls)
+                            # 压缩后的 CSS 去掉选择器里的空格，比对前统一去掉
+                            rules.setdefault(re.sub(r'\s+', '', s), set()).update(decls)
             i += 1
             continue
         buf += ch
@@ -271,6 +279,9 @@ def check_scss_css(built_path=None):
     missing_sel = []
     missing_decl = []
     for sel, decls in built.items():
+        if not decls:
+            # 空规则：压缩器会直接删掉，比对无意义
+            continue
         if sel not in shipped:
             missing_sel.append(sel)
             continue
