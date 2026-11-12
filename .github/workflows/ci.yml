@@ -138,24 +138,35 @@ jobs:
       - name: Version numbers, changelog parity and SCSS/CSS selectors
         run: python3 .github/scripts/check_consistency.py
 
-      # The strict comparison needs a SCSS compiler. The runner cannot always
-      # install one (npm has been flaky there), so a failure here degrades the
-      # check instead of failing the build.
-      - name: Install sass
-        id: sass-install
+      # The strict comparison has to use the project's own build pipeline
+      # (gulp-sass + autoprefixer + clean-css). A plain `sass` run produces a
+      # different file: clean-css drops `*` selectors and autoprefixer adds
+      # `::-moz-placeholder`, so comparing the two would flag equivalent
+      # differences as "changed but not recompiled".
+      - name: Install build dependencies
+        id: npm-install
         continue-on-error: true
-        run: npm install --no-save --no-audit --no-fund sass@1.105.1
+        run: npm ci --no-audit --no-fund
 
-      - name: Compile SCSS
-        id: scss-build
+      - name: Build CSS with the project pipeline
+        id: css-build
         continue-on-error: true
         run: |
-          if [ ! -x node_modules/.bin/sass ]; then
-            echo "sass is unavailable — the strict comparison will be skipped"
+          if [ ! -f node_modules/.bin/gulp ]; then
+            echo "gulp is unavailable — the strict comparison will be skipped"
             exit 0
           fi
-          npx sass --no-source-map --style=expanded assets/VOID-Plus.scss /tmp/built.css
+          npx gulp build
 
       - name: Strict SCSS/CSS comparison
-        if: steps.scss-build.outcome == 'success' && hashFiles('node_modules/.bin/sass') != ''
-        run: python3 .github/scripts/check_consistency.py --built-css /tmp/built.css
+        if: steps.css-build.outcome == 'success'
+        run: |
+          # gulp 的 rev 会给产物加内容哈希，文件名不固定，取最新的那份
+          BUILT=$(ls -1 build/assets/VOID-Plus-*.css 2>/dev/null | head -n 1)
+          if [ -n "$BUILT" ]; then
+            echo "comparing against $BUILT"
+            python3 .github/scripts/check_consistency.py --built-css "$BUILT"
+          else
+            echo "no built CSS found — running the selector-level check only"
+            python3 .github/scripts/check_consistency.py
+          fi
