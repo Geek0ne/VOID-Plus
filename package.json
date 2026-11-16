@@ -12,7 +12,7 @@
     "lint:php": "find . -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l | grep -v 'No syntax errors' || true"
   },
   "devDependencies": {
-    "del": "^6.1.1",
+    "del": "^9.0.1",
     "eslint": "^8.57.1",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
