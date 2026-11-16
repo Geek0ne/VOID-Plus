@@ -24,6 +24,6 @@
     "gulp-uglify": "^3.0.2",
     "jsonfile": "^6.1.0",
     "sass": "^1.105.1",
-    "pre-commit": "^1.2.2"
+    "pre-commit": "^2.0.0"
   }
 }
